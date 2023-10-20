@@ -4,6 +4,7 @@ import App from "./components/App";
 import { StrictMode } from "react";
 import { Provider } from "react-redux";
 import store from "./components/redux/store";
+import "./css/main.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const container = document.getElementById("root");

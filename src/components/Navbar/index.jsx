@@ -1,12 +1,14 @@
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import { LinkContainer } from "react-router-bootstrap";
 import { useSelector } from "react-redux";
+import Figure from "react-bootstrap/Figure";
+import lucky_bus from "../../static/icons/vecteezy_school-bus.jpg";
+import Button from "react-bootstrap/Button";
 
 function BasicExample() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container>
@@ -15,27 +17,30 @@ function BasicExample() {
             <Navbar.Brand>LOGIN</Navbar.Brand>
           </LinkContainer>
         )}
+        {isAuthenticated && <Navbar.Brand>Admin UI</Navbar.Brand>}
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         {isAuthenticated && (
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="#home">Home</Nav.Link>
-              <Nav.Link href="#link">Link</Nav.Link>
-              <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">
-                  Another action
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">
-                  Something
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">
-                  Separated link
-                </NavDropdown.Item>
-              </NavDropdown>
+              <Button as="input" type="button" value="Add new" />
             </Nav>
+            <Nav className="ml-auto">
+              <Figure className="mb-0 pe-3">
+                <Figure.Image
+                  className="mb-0"
+                  roundedCircle
+                  width={50}
+                  height={50}
+                  alt="50x50"
+                  src={lucky_bus}
+                />
+              </Figure>
+            </Nav>
+            <Navbar.Text className="pe-3">{user}</Navbar.Text>
+            <LinkContainer to="/logout">
+              <Nav.Link>Logout</Nav.Link>
+            </LinkContainer>
           </Navbar.Collapse>
         )}
       </Container>
