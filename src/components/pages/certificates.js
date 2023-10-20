@@ -2,11 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
 import Container from "react-bootstrap/Container";
-import InputGroup from "react-bootstrap/InputGroup";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
-import { hostName } from "../../config";
 import { useSelector } from "react-redux";
 import Pagination from "react-bootstrap/Pagination";
 import { getData } from "../redux/dataSlice";
@@ -16,6 +12,8 @@ import CustomPagination from "../Pagination";
 import "./certificates.css";
 import SearchComponent from "../Search";
 import { search } from "../redux/dataSlice";
+import TableHeader from "../TableHeader";
+import CertificatesTableBody from "../TableBody";
 
 const Certificates = () => {
   const [error, setError] = useState(null);
@@ -113,7 +111,6 @@ const Certificates = () => {
     dispatch(
       getData({
         jwt,
-        requestParams: { nextPage: currentPage, pageSize: pageSize },
         setErrorHook: setError,
         performSearch: true,
       })
@@ -139,100 +136,17 @@ const Certificates = () => {
       </Container>
       <Container className="px-4">
         <Table size="sm" bordered hover>
-          <thead>
-            <tr>
-              <th
-                className="clickable-header"
-                key="created"
-                onClick={() => handleSortingChange("created")}
-              >
-                {sortField === "created" && (ascOrder ? "▼" : "▲")}
-                Created
-              </th>
-              <th
-                className="clickable-header"
-                key="id"
-                onClick={() => handleSortingChange("id")}
-              >
-                {sortField === "id" && (ascOrder ? "▼" : "▲")}
-                ID
-              </th>
-              <th
-                className="clickable-header"
-                key="title"
-                onClick={() => handleSortingChange("title")}
-              >
-                {sortField === "title" && (ascOrder ? "▼" : "▲")}Title
-              </th>
-              <th
-                className="clickable-header"
-                key="tags"
-                onClick={() => handleSortingChange("tags")}
-              >
-                {sortField === "tags" && (ascOrder ? "▼" : "▲")}Tags
-              </th>
-              <th
-                className="clickable-header"
-                key="description"
-                onClick={() => handleSortingChange("description")}
-              >
-                {sortField === "description" && (ascOrder ? "▼" : "▲")}
-                Description
-              </th>
-              <th
-                className="clickable-header"
-                key="price"
-                onClick={() => handleSortingChange("price")}
-              >
-                {sortField === "price" && (ascOrder ? "▼" : "▲")}Price
-              </th>
-              <th className="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {!error &&
-              dbData &&
-              dbData.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{item.createDate}</td>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>
-                    {item.tags.map((tag) => (
-                      <span key={tag.id}>
-                        {tag.name}
-                        <br />
-                      </span>
-                    ))}
-                  </td>
-                  <td>{item.description}</td>
-                  <td>{item.price}</td>
-                  <td>
-                    <div className="d-flex justify-content-center">
-                      <Button
-                        variant="primary"
-                        onClick={() => handleView(index)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        className="mx-3"
-                        variant="warning"
-                        onClick={() => handleUpdate(index)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="danger"
-                        onClick={() => handleDelete(index)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
+          <TableHeader
+            sortField={sortField}
+            handleSortingChange={handleSortingChange}
+          />
+          <CertificatesTableBody
+            dbData={dbData}
+            error={error}
+            handleDelete={handleDelete}
+            handleView={handleView}
+            handleUpdate={handleUpdate}
+          />
         </Table>
         <div className="d-flex">
           <div className="ms-auto" style={{ paddingLeft: "5rem" }}>
