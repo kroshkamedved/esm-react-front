@@ -20,7 +20,7 @@ const CustomPagination = ({ totalPages, currentPage, handlePageSelect }) => {
         </Pagination.Item>
       );
     } else if (iter == currentPage + 2 || iter == currentPage - 2) {
-      items.push(<Pagination.Ellipsis />);
+      items.push(<Pagination.Ellipsis key={iter} />);
     }
   }
   return items;

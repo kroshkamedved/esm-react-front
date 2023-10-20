@@ -3,14 +3,26 @@ import { hostName } from "../../config";
 
 export const getData = createAsyncThunk(
   "getDataFromAsyncThunk",
-  async ({ jwt, requestParams, setErrorHook }) => {
-    const { nextPage, pageSize } = requestParams;
-    const requestUri =
-      hostName +
-      "/certificates/all?" +
-      (nextPage ? `page=${nextPage}&` : "") +
-      (pageSize ? `size=${pageSize}` : "");
-
+  async ({
+    jwt,
+    requestParams,
+    setErrorHook,
+    setDbData,
+    performSearch = false,
+  }) => {
+    let requestUri;
+    if (performSearch) {
+      requestUri =
+        hostName +
+        "/certificates?sortOrder=DESC&sortByDate=&sortByName&tagName=new TAg JPA&tagName=changed";
+    } else {
+      const { nextPage, pageSize } = requestParams;
+      requestUri =
+        hostName +
+        "/certificates/all?" +
+        (nextPage ? `page=${nextPage}&` : "") +
+        (pageSize ? `size=${pageSize}` : "");
+    }
     try {
       const response = await fetch(requestUri, {
         method: "get",
@@ -43,7 +55,14 @@ export const dataSlice = createSlice({
     records: 0,
     data: null,
   },
-  reducers: (builder) => {
+  reducers: {
+    search: (state, action) => {
+      if (action.payload) {
+        console.log(action.payload);
+      }
+    },
+  },
+  extraReducers: (builder) => {
     builder
       .addCase(getData.pending, (state, action) => {
         state.error = null;
@@ -60,14 +79,20 @@ export const dataSlice = createSlice({
         state.records = 0;
       })
       .addCase(getData.fulfilled, (state, action) => {
-        const { _embedded, page } = action.payload;
+        if (action.payload?._embedded) {
+          const { _embedded, page } = action.payload;
+          state.cureentPage = page.number;
+          state.records = page.totalElements;
+          state.data = page.certificateModelList;
+        } else {
+          state.data = action.payload;
+        }
         state.error = null;
         state.loading = false;
-        state.cureentPage = page.number;
-        state.records = page.totalElements;
-        state.data = page.certificateModelList;
       });
   },
 });
 
 export default dataSlice.reducer;
+
+export const { search } = dataSlice.actions;

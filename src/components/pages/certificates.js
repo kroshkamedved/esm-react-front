@@ -14,6 +14,8 @@ import { useDispatch } from "react-redux";
 import PageSizeDropdown from "../PageSizeSelect";
 import CustomPagination from "../Pagination";
 import "./certificates.css";
+import SearchComponent from "../Search";
+import { search } from "../redux/dataSlice";
 
 const Certificates = () => {
   const [error, setError] = useState(null);
@@ -107,6 +109,21 @@ const Certificates = () => {
     sortData(accessor);
   };
 
+  const performSearch = () => {
+    dispatch(
+      getData({
+        jwt,
+        requestParams: { nextPage: currentPage, pageSize: pageSize },
+        setErrorHook: setError,
+        performSearch: true,
+      })
+    ).then((data) => {
+      if (data.payload) {
+        setDbData(data.payload);
+      }
+    });
+  };
+
   return (
     <>
       {error && (
@@ -118,16 +135,7 @@ const Certificates = () => {
         </Container>
       )}
       <Container className="px-4">
-        <InputGroup className="mb-3">
-          <Form.Control
-            placeholder="Search..."
-            aria-label="Search"
-            aria-describedby="basic-addon2"
-          />
-          <Button variant="outline-secondary" id="button-addon2">
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GO!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </Button>
-        </InputGroup>
+        <SearchComponent onSearch={performSearch} />
       </Container>
       <Container className="px-4">
         <Table size="sm" bordered hover>
