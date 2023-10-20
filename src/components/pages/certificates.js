@@ -13,14 +13,17 @@ import { getData } from "../redux/dataSlice";
 import { useDispatch } from "react-redux";
 import PageSizeDropdown from "../PageSizeSelect";
 import CustomPagination from "../Pagination";
+import "./certificates.css";
 
 const Certificates = () => {
   const [error, setError] = useState(null);
   const { jwt } = useSelector((state) => state.auth);
   const [dbData, setDbData] = useState(null);
   const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [page, setPage] = useState({});
+  const [sortField, setSortField] = useState("");
+  const [ascOrder, setAscOrder] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -41,28 +44,8 @@ const Certificates = () => {
     setDbData(updatedArray);
   };
 
-  //autohide error & fetching data
+  //fetching initial data
   useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     const response = await fetch(`${hostName}/certificates/all`, {
-    //       method: "get",
-    //       headers: {
-    //         Authorization: `Bearer ${jwt}`,
-    //       },
-    //     });
-    //     if (!response.ok) {
-    //       throw new Error("Server communication error");
-    //     } else {
-    //       const data = await response.json();
-    //       setDbData(data._embedded.certificateModelList);
-    //       setPage(data.payload.page);
-    //     }
-    //   } catch (error) {
-    //     setError("Server communication error");
-    //   }
-    // };
-    // fetchData();
     dispatch(
       getData({
         jwt,
@@ -72,12 +55,15 @@ const Certificates = () => {
     ).then((data) => {
       console.log(data);
       if (data.payload) {
-        setDbData(data.payload._embedded.certificateModelList);
+        const sortedArray = data.payload._embedded.certificateModelList;
+        //setDbData(data.payload._embedded.certificateModelList);
+        sortData(sortField, sortedArray);
         setPage(data.payload.page);
       }
     });
-  }, []);
+  }, [pageSize]);
 
+  // autohide error
   useEffect(() => {
     const deleteError = () => {
       setError(null);
@@ -103,25 +89,28 @@ const Certificates = () => {
     });
   };
 
-  //pagination
-  let active = 1;
-  let items = [];
-  for (let number = 1; number <= 5; number++) {
-    items.push(
-      <Pagination.Item
-        onClick={() => handlePageSelect(number)}
-        key={number}
-        active={number === active}
-      >
-        {number}
-      </Pagination.Item>
-    );
-  }
+  const sortData = (accessor, array = dbData) => {
+    const sortedData = [...array];
+    sortedData.sort((a, b) => {
+      if (ascOrder) {
+        return a[accessor] > b[accessor] ? 1 : -1;
+      } else {
+        return a[accessor] < b[accessor] ? 1 : -1;
+      }
+    });
+    setDbData(sortedData);
+  };
+
+  const handleSortingChange = (accessor) => {
+    setSortField(accessor);
+    setAscOrder(!ascOrder);
+    sortData(accessor);
+  };
 
   return (
     <>
       {error && (
-        <Container className="px-3 py-1">
+        <Container className="px-3 py-1 d-flex">
           <Alert variant="danger" onClose={() => setError(null)} dismissible>
             <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
             <p>{error}</p>
@@ -144,11 +133,51 @@ const Certificates = () => {
         <Table size="sm" bordered hover>
           <thead>
             <tr>
-              <th>id</th>
-              <th>Title</th>
-              <th>Tags</th>
-              <th>Description</th>
-              <th>Price</th>
+              <th
+                className="clickable-header"
+                key="created"
+                onClick={() => handleSortingChange("created")}
+              >
+                {sortField === "created" && (ascOrder ? "▼" : "▲")}
+                Created
+              </th>
+              <th
+                className="clickable-header"
+                key="id"
+                onClick={() => handleSortingChange("id")}
+              >
+                {sortField === "id" && (ascOrder ? "▼" : "▲")}
+                ID
+              </th>
+              <th
+                className="clickable-header"
+                key="title"
+                onClick={() => handleSortingChange("title")}
+              >
+                {sortField === "title" && (ascOrder ? "▼" : "▲")}Title
+              </th>
+              <th
+                className="clickable-header"
+                key="tags"
+                onClick={() => handleSortingChange("tags")}
+              >
+                {sortField === "tags" && (ascOrder ? "▼" : "▲")}Tags
+              </th>
+              <th
+                className="clickable-header"
+                key="description"
+                onClick={() => handleSortingChange("description")}
+              >
+                {sortField === "description" && (ascOrder ? "▼" : "▲")}
+                Description
+              </th>
+              <th
+                className="clickable-header"
+                key="price"
+                onClick={() => handleSortingChange("price")}
+              >
+                {sortField === "price" && (ascOrder ? "▼" : "▲")}Price
+              </th>
               <th className="text-center">Actions</th>
             </tr>
           </thead>
@@ -157,6 +186,7 @@ const Certificates = () => {
               dbData &&
               dbData.map((item, index) => (
                 <tr key={item.id}>
+                  <td>{item.createDate}</td>
                   <td>{item.id}</td>
                   <td>{item.name}</td>
                   <td>
@@ -196,26 +226,25 @@ const Certificates = () => {
               ))}
           </tbody>
         </Table>
-        <div className="d-flex pt-5">
+        <div className="d-flex">
           <div className="ms-auto" style={{ paddingLeft: "5rem" }}>
-            <Pagination>{items}</Pagination>
+            <Pagination>
+              <CustomPagination
+                totalPages={page.totalPages}
+                currentPage={page.number}
+                handlePageSelect={handlePageSelect}
+              />
+            </Pagination>
           </div>
           <div className="ms-auto" style={{ width: "5rem" }}>
             <PageSizeDropdown
               pageSize={pageSize}
-              onChangePageSize={(selectedValue) => setPageSize(selectedValue)}
+              onChangePageSize={(selectedValue) => {
+                setPageSize(selectedValue);
+              }}
             />
           </div>
         </div>
-        {page && (
-          <Pagination>
-            <CustomPagination
-              totalPages={page.totalPages}
-              currentPage={page.number}
-              handlePageSelect={handlePageSelect}
-            />
-          </Pagination>
-        )}
       </Container>
     </>
   );

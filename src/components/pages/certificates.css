@@ -1,0 +1,7 @@
+.bottomFix {
+  align-self: flex-end;
+}
+
+.clickable-header {
+  cursor: pointer;
+}

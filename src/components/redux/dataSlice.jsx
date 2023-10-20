@@ -39,7 +39,7 @@ export const dataSlice = createSlice({
   initialState: {
     error: null,
     loading: false,
-    currentPage: 1,
+    currentPage: 0,
     records: 0,
     data: null,
   },
