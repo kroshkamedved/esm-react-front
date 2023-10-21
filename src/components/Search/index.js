@@ -1,11 +1,47 @@
 import React, { useState } from "react";
 import { InputGroup, Form, Button } from "react-bootstrap";
 
-const SearchComponent = ({ onSearch }) => {
+const SearchComponent = ({ onSearch, refreshHook }) => {
   const [searchText, setSearchText] = useState("");
 
+  function parseForRequestParams(input) {
+    const tagRegex = /#(\([a-zA-Z0-9\s]+\))/g;
+    const descriptionRegex = /(\b\w+\b)/g;
+
+    const tags = [];
+    let description = "";
+    const words = input.split(" ");
+
+    for (let i = 0; i < words.length; i++) {
+      const tagMatch = words[i].match(tagRegex);
+      const descriptionMatch = words[i].match(descriptionRegex);
+
+      if (tagMatch) {
+        tagMatch.forEach((match) => {
+          tags.push(match.slice(2, -1)); // Extract tag name
+        });
+      } else if (descriptionMatch) {
+        description = descriptionMatch.join(" "); // Join description words
+        // Break after the first description is found
+        break;
+      }
+    }
+
+    const params = [];
+    tags.forEach((tag) => {
+      params.push(`tagName=${tag}`);
+    });
+
+    if (description) {
+      params.push(`description=${description}`);
+    }
+
+    return params.join("&");
+  }
+
   const handleSearch = () => {
-    onSearch(searchText);
+    const result = parseForRequestParams(searchText);
+    onSearch(result);
   };
 
   return (
@@ -15,7 +51,12 @@ const SearchComponent = ({ onSearch }) => {
         aria-label="Search"
         aria-describedby="basic-addon2"
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
+        onChange={(e) => {
+          setSearchText(e.target.value);
+          if (e.target.value === "") {
+            refreshHook();
+          }
+        }}
       />
       <Button
         variant="outline-secondary"

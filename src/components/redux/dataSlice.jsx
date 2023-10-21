@@ -9,12 +9,11 @@ export const getData = createAsyncThunk(
     setErrorHook,
     setDbData,
     performSearch = false,
+    requestParamsString,
   }) => {
     let requestUri;
     if (performSearch) {
-      requestUri =
-        hostName +
-        "/certificates?sortOrder=DESC&sortByDate=&sortByName&tagName=new TAg JPA&tagName=changed";
+      requestUri = hostName + "/certificates?" + requestParamsString;
     } else {
       const { nextPage, pageSize } = requestParams;
       requestUri =

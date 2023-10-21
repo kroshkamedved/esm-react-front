@@ -24,6 +24,7 @@ const Certificates = () => {
   const [page, setPage] = useState({});
   const [sortField, setSortField] = useState("created");
   const [ascOrder, setAscOrder] = useState(true);
+  const [searchMode, setSearchMode] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -46,21 +47,7 @@ const Certificates = () => {
 
   //fetching initial data
   useEffect(() => {
-    dispatch(
-      getData({
-        jwt,
-        requestParams: { nextPage: currentPage, pageSize: pageSize },
-        setErrorHook: setError,
-      })
-    ).then((data) => {
-      console.log(data);
-      if (data.payload) {
-        const sortedArray = data.payload._embedded.certificateModelList;
-        //setDbData(data.payload._embedded.certificateModelList);
-        sortData(sortField, sortedArray);
-        setPage(data.payload.page);
-      }
-    });
+    handleRefresh();
   }, [pageSize]);
 
   // autohide error
@@ -107,16 +94,37 @@ const Certificates = () => {
     sortData(accessor);
   };
 
-  const performSearch = () => {
+  const performSearch = (text) => {
     dispatch(
       getData({
         jwt,
         setErrorHook: setError,
         performSearch: true,
+        requestParamsString: text,
       })
     ).then((data) => {
       if (data.payload) {
         setDbData(data.payload);
+        setSearchMode(true);
+      }
+    });
+  };
+
+  const handleRefresh = () => {
+    setSearchMode(false);
+    dispatch(
+      getData({
+        jwt,
+        requestParams: { nextPage: currentPage, pageSize: pageSize },
+        setErrorHook: setError,
+      })
+    ).then((data) => {
+      console.log(data);
+      if (data.payload) {
+        const sortedArray = data.payload._embedded.certificateModelList;
+        //setDbData(data.payload._embedded.certificateModelList);
+        sortData(sortField, sortedArray);
+        setPage(data.payload.page);
       }
     });
   };
@@ -132,7 +140,7 @@ const Certificates = () => {
         </Container>
       )}
       <Container className="px-4">
-        <SearchComponent onSearch={performSearch} />
+        <SearchComponent onSearch={performSearch} refreshHook={handleRefresh} />
       </Container>
       <Container className="px-4">
         <Table size="sm" bordered hover>
@@ -149,25 +157,27 @@ const Certificates = () => {
             handleUpdate={handleUpdate}
           />
         </Table>
-        <div className="d-flex">
-          <div className="ms-auto" style={{ paddingLeft: "5rem" }}>
-            <Pagination>
-              <CustomPagination
-                totalPages={page.totalPages}
-                currentPage={page.number}
-                handlePageSelect={handlePageSelect}
+        {!searchMode && (
+          <div className="d-flex">
+            <div className="ms-auto" style={{ paddingLeft: "5rem" }}>
+              <Pagination>
+                <CustomPagination
+                  totalPages={page.totalPages}
+                  currentPage={page.number}
+                  handlePageSelect={handlePageSelect}
+                />
+              </Pagination>
+            </div>
+            <div className="ms-auto" style={{ width: "5rem" }}>
+              <PageSizeDropdown
+                pageSize={pageSize}
+                onChangePageSize={(selectedValue) => {
+                  setPageSize(selectedValue);
+                }}
               />
-            </Pagination>
+            </div>
           </div>
-          <div className="ms-auto" style={{ width: "5rem" }}>
-            <PageSizeDropdown
-              pageSize={pageSize}
-              onChangePageSize={(selectedValue) => {
-                setPageSize(selectedValue);
-              }}
-            />
-          </div>
-        </div>
+        )}
       </Container>
     </>
   );
