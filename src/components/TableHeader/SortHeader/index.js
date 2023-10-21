@@ -1,9 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const SortHeader = ({ accessor, currentSort, handleSortingChange }) => {
+const SortHeader = ({
+  accessor,
+  currentSort,
+  handleSortingChange,
+  ascOrderBoolean,
+}) => {
   const isCurrentSort = accessor === currentSort;
-  const ascOrder = currentSort === accessor ? "asc" : "desc";
+  const ascOrder = ascOrderBoolean ? "asc" : "desc";
 
   const handleClick = () => {
     handleSortingChange(

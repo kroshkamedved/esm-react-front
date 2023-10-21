@@ -10,7 +10,7 @@ const tableHeaders = [
   { accessor: "price", label: "Price" },
 ];
 
-const TableHeader = ({ sortField, handleSortingChange }) => {
+const TableHeader = ({ currentSort, handleSortingChange, ascOrderBoolean }) => {
   return (
     <thead>
       <tr>
@@ -18,8 +18,9 @@ const TableHeader = ({ sortField, handleSortingChange }) => {
           <SortHeader
             key={header.accessor}
             accessor={header.accessor}
-            currentSort={sortField}
+            currentSort={currentSort}
             handleSortingChange={handleSortingChange}
+            ascOrderBoolean={ascOrderBoolean}
           >
             {header.label}
           </SortHeader>

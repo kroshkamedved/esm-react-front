@@ -22,7 +22,7 @@ const Certificates = () => {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(0);
   const [page, setPage] = useState({});
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState("created");
   const [ascOrder, setAscOrder] = useState(true);
 
   const dispatch = useDispatch();
@@ -137,8 +137,9 @@ const Certificates = () => {
       <Container className="px-4">
         <Table size="sm" bordered hover>
           <TableHeader
-            sortField={sortField}
+            currentSort={sortField}
             handleSortingChange={handleSortingChange}
+            ascOrderBoolean={ascOrder}
           />
           <CertificatesTableBody
             dbData={dbData}
