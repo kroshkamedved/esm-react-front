@@ -14,6 +14,8 @@ import SearchComponent from "../Search";
 import { search } from "../redux/dataSlice";
 import TableHeader from "../TableHeader";
 import CertificatesTableBody from "../TableBody";
+import Modal from "../Modal";
+import { edit, add, view, close } from "../redux/modalSlice";
 
 const Certificates = () => {
   const [error, setError] = useState(null);
@@ -25,8 +27,11 @@ const Certificates = () => {
   const [sortField, setSortField] = useState("created");
   const [ascOrder, setAscOrder] = useState(true);
   const [searchMode, setSearchMode] = useState(false);
-
+  const { isOpened } = useSelector((state) => state.modalState);
   const dispatch = useDispatch();
+  const [form, setForm] = useState({});
+  const [currentCertificateTags, setCurrentCertificateTags] = useState([]);
+  const [allTags, setAllTags] = useState([]);
 
   //button handling
   const handleDelete = (id) => {
@@ -36,18 +41,53 @@ const Certificates = () => {
   };
 
   const handleView = (id) => {
-    alert(dbData[id]);
+    fullfillInitialValues(id);
+    dispatch(view(id));
+  };
+
+  const loadTags = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/tags", {
+        method: "get",
+        headers: {
+          Authorization: "Bearer " + jwt,
+        },
+      });
+      if (response.ok) {
+        const tagData = await response.json();
+        setAllTags(tagData._embedded.tagModelList);
+      }
+    } catch {
+      setError("Server communication error");
+    }
   };
 
   const handleUpdate = (id) => {
-    const updatedArray = [...dbData];
-    updatedArray[id].name = "CHANGED FROM UI";
-    setDbData(updatedArray);
+    loadTags();
+    fullfillInitialValues(id);
+    dispatch(edit(id));
   };
+
+  function fullfillInitialValues(id) {
+    const preparedForm = {};
+    const entity = dbData[id];
+    const initialTags = [];
+
+    for (const prop in entity) {
+      if (prop === "tags") {
+        entity[prop].map((tag) => initialTags.push(tag));
+      } else {
+        preparedForm[prop] = entity[prop];
+      }
+    }
+    setForm(preparedForm);
+    setCurrentCertificateTags(initialTags);
+  }
 
   //fetching initial data
   useEffect(() => {
     handleRefresh();
+    loadTags();
   }, [pageSize]);
 
   // autohide error
@@ -128,59 +168,85 @@ const Certificates = () => {
       }
     });
   };
+  //Doesn't need it now
+  // const handleOutsideClick = (e) => {
+  //   if (isOpened) {
+  //     const modal = document.querySelector(".centralModal");
+  //     const viewButton = document.getElementById("viewButton"); // Replace with the actual class or selector for your "View" button
+
+  //     if (!modal.contains(e.target) && e.target !== viewButton) {
+  //       // The click was outside the modal, and not on the "View" button, so close the modal
+  //       dispatch(close());
+  //     }
+  //   }
+  // };
 
   return (
     <>
-      {error && (
-        <Container className="px-3 py-1 d-flex">
-          <Alert variant="danger" onClose={() => setError(null)} dismissible>
-            <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
-            <p>{error}</p>
-          </Alert>
-        </Container>
-      )}
-      <Container className="px-4">
-        <SearchComponent onSearch={performSearch} refreshHook={handleRefresh} />
-      </Container>
-      <Container className="px-4">
-        <Table size="sm" bordered hover>
-          <TableHeader
-            currentSort={sortField}
-            handleSortingChange={handleSortingChange}
-            ascOrderBoolean={ascOrder}
-          />
-          <CertificatesTableBody
-            dbData={dbData}
-            error={error}
-            handleDelete={handleDelete}
-            handleView={handleView}
-            handleUpdate={handleUpdate}
-          />
-        </Table>
-        {!searchMode && (
-          <div className="d-flex">
-            <div className="ms-auto" style={{ paddingLeft: "5rem" }}>
-              <Pagination>
-                <CustomPagination
-                  totalPages={page.totalPages}
-                  currentPage={page.number}
-                  handlePageSelect={handlePageSelect}
-                />
-              </Pagination>
-            </div>
-            <div className="ms-auto" style={{ width: "5rem" }}>
-              <PageSizeDropdown
-                pageSize={pageSize}
-                onChangePageSize={(selectedValue) => {
-                  setPageSize(selectedValue);
-                }}
-              />
-            </div>
-          </div>
+      <div /*onClick={handleOutsideClick}*/>
+        {error && (
+          <Container className="px-3 py-1 d-flex">
+            <Alert variant="danger" onClose={() => setError(null)} dismissible>
+              <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
+              <p>{error}</p>
+            </Alert>
+          </Container>
         )}
-      </Container>
+        <Container className="px-4">
+          <SearchComponent
+            onSearch={performSearch}
+            refreshHook={handleRefresh}
+          />
+        </Container>
+        <Container className="px-4">
+          <Table size="sm" bordered hover>
+            <TableHeader
+              currentSort={sortField}
+              handleSortingChange={handleSortingChange}
+              ascOrderBoolean={ascOrder}
+            />
+            <CertificatesTableBody
+              dbData={dbData}
+              error={error}
+              handleDelete={handleDelete}
+              handleView={handleView}
+              handleUpdate={handleUpdate}
+            />
+          </Table>
+          {!searchMode && (
+            <div className="d-flex">
+              <div className="ms-auto" style={{ paddingLeft: "5rem" }}>
+                <Pagination>
+                  <CustomPagination
+                    totalPages={page.totalPages}
+                    currentPage={page.number}
+                    handlePageSelect={handlePageSelect}
+                  />
+                </Pagination>
+              </div>
+              <div className="ms-auto" style={{ width: "5rem" }}>
+                <PageSizeDropdown
+                  pageSize={pageSize}
+                  onChangePageSize={(selectedValue) => {
+                    setPageSize(selectedValue);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          <Modal
+            dbData={dbData}
+            form={form}
+            setForm={setForm}
+            tags={currentCertificateTags}
+            setTags={setCurrentCertificateTags}
+            allTags={allTags}
+            setErrorHook={setError}
+            jwt={jwt}
+          />
+        </Container>
+      </div>
     </>
   );
 };
-
 export default Certificates;

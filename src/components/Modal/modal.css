@@ -1,0 +1,12 @@
+.centralModal {
+  position: absolute;
+  top: 50%;
+  min-width: 40%;
+  min-height: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  background-color: aliceblue;
+  border: 3px solid black;
+  border-radius: 5%;
+}
