@@ -29,7 +29,7 @@ const CertificatesTableBody = ({
             <td>{item.price}</td>
             <td>
               <div className="d-flex justify-content-center">
-                <Button variant="primary" onClick={() => handleView(index)}>
+                <Button id="viewButton" variant="primary" onClick={() => handleView(index)}>
                   View
                 </Button>
                 <Button

@@ -6,9 +6,16 @@ import { useSelector } from "react-redux";
 import Figure from "react-bootstrap/Figure";
 import lucky_bus from "../../static/icons/vecteezy_school-bus.jpg";
 import Button from "react-bootstrap/Button";
+import { useDispatch } from "react-redux";
+import { add } from "../redux/modalSlice";
 
 function BasicExample() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const addNewCertificate = () => {
+    dispatch(add());
+  };
+
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container>
@@ -23,7 +30,12 @@ function BasicExample() {
         {isAuthenticated && (
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Button as="input" type="button" value="Add new" />
+              <Button
+                as="input"
+                type="button"
+                value="Add new"
+                onClick={addNewCertificate}
+              />
             </Nav>
             <Nav className="ml-auto">
               <Figure className="mb-0 pe-3">
