@@ -55,7 +55,7 @@ const Modal = ({
     const fields = ["name", "description", "duration", "price", "tags"];
     for (const field of fields) {
       if (!form[field]) {
-        if (field != "tags") {
+        if (field !== "tags") {
           newErrors[field] = "Field shoud not be empty!";
         }
       } else if (
@@ -72,12 +72,14 @@ const Modal = ({
           "Description field must not be less than 12 and greater than 1000 characters";
       }
     }
-
     return newErrors;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (form.tags === undefined) {
+      form.tags = [];
+    }
     const errors = validateForm();
 
     if (Object.keys(errors).length > 0) {
@@ -103,6 +105,7 @@ const Modal = ({
         for (const prop in form) {
           if (prop == tags) {
             newCertificate[prop] = tags;
+            continue;
           }
           newCertificate[prop] = form[prop];
         }

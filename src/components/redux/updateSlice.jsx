@@ -46,10 +46,12 @@ export const updateData = createAsyncThunk(
         });
         if (response.ok) {
           return;
+        } else {
+          throw new Error("add error");
         }
       }
     } catch {
-      setErrorHook("Error during certificate delete/update");
+      setErrorHook("Error during certificate delete/update/add");
     }
   }
 );
