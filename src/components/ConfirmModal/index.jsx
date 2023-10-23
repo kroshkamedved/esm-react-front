@@ -30,7 +30,7 @@ const ConfirmModal = ({ setError, jwt, dbData, handleRefresh, setDbData }) => {
 
   return (
     isOpened && (
-      <Form className="centralModal px-4 py-4" onSubmit={handleSubmit}>
+      <Form className="centralModal2 px-4 py-4" onSubmit={handleSubmit}>
         <div className="d-flex justify-align-center">
           <h2>DELETE CONFIRMATION</h2>
         </div>
