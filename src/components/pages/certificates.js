@@ -17,8 +17,13 @@ import CertificatesTableBody from "../TableBody";
 import Modal from "../Modal";
 import { edit, add, view, close } from "../redux/modalSlice";
 import { updateData } from "../redux/updateSlice";
+import ConfirmModal from "../ConfirmModal";
+import { confirm, cancel } from "../redux/confirmSlice";
 
 const Certificates = () => {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [submitIsVisible, setSubmitIsVisible] = useState(false);
+
   const [error, setError] = useState(null);
   const { jwt } = useSelector((state) => state.auth);
   const [dbData, setDbData] = useState(null);
@@ -38,17 +43,8 @@ const Certificates = () => {
   const [currentCertificateTags, setCurrentCertificateTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
 
-  //button handling
   const handleDelete = (id) => {
-    dispatch(
-      updateData({
-        deleteMod: true,
-        deleteItemId: dbData[id].id,
-        setErrorHook: setError,
-        jwt: jwt,
-      })
-    );
-    handleRefresh();
+    dispatch(confirm(id));
   };
 
   const handleView = (id) => {
@@ -181,22 +177,10 @@ const Certificates = () => {
       }
     });
   };
-  //Doesn't need it now
-  // const handleOutsideClick = (e) => {
-  //   if (isOpened) {
-  //     const modal = document.querySelector(".centralModal");
-  //     const viewButton = document.getElementById("viewButton"); // Replace with the actual class or selector for your "View" button
-
-  //     if (!modal.contains(e.target) && e.target !== viewButton) {
-  //       // The click was outside the modal, and not on the "View" button, so close the modal
-  //       dispatch(close());
-  //     }
-  //   }
-  // };
 
   return (
     <>
-      <div /*onClick={handleOutsideClick}*/>
+      <div>
         {error && (
           <Container className="px-3 py-1 d-flex">
             <Alert variant="danger" onClose={() => setError(null)} dismissible>
@@ -221,9 +205,9 @@ const Certificates = () => {
             <CertificatesTableBody
               dbData={dbData}
               error={error}
-              handleDelete={handleDelete}
               handleView={handleView}
               handleUpdate={handleUpdate}
+              handleDelete={handleDelete}
             />
           </Table>
           {!searchMode && (
@@ -259,6 +243,13 @@ const Certificates = () => {
             allTags={allTags}
             setErrorHook={setError}
             jwt={jwt}
+          />
+          <ConfirmModal
+            setError={setError}
+            jwt={jwt}
+            dbData={dbData}
+            setDbData={setDbData}
+            handleRefresh={handleRefresh}
           />
         </Container>
       </div>
