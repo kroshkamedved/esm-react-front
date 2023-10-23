@@ -50,7 +50,7 @@ export const dataSlice = createSlice({
   initialState: {
     error: null,
     loading: false,
-    currentPage: 0,
+    curentPage: 0,
     records: 0,
     data: null,
   },
@@ -66,7 +66,7 @@ export const dataSlice = createSlice({
       .addCase(getData.pending, (state, action) => {
         state.error = null;
         state.loading = true;
-        state.currentPage = 0;
+        state.curentPage = 0;
         state.records = 0;
       })
       .addCase(getData.rejected, (state, action) => {
@@ -74,13 +74,13 @@ export const dataSlice = createSlice({
         setErrorHook(action.error.message);
         state.error = action.error;
         state.loading = true;
-        state.cureentPage = 0;
+        state.curentPage = 0;
         state.records = 0;
       })
       .addCase(getData.fulfilled, (state, action) => {
         if (action.payload?._embedded) {
           const { _embedded, page } = action.payload;
-          state.cureentPage = page.number;
+          state.curentPage = page.number;
           state.records = page.totalElements;
           state.data = page.certificateModelList;
         } else {

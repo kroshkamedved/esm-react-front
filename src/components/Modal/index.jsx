@@ -55,7 +55,7 @@ const Modal = ({
     const fields = ["name", "description", "duration", "price", "tags"];
     for (const field of fields) {
       if (!form[field]) {
-        if (field != tags) {
+        if (field != "tags") {
           newErrors[field] = "Field shoud not be empty!";
         }
       }
@@ -87,21 +87,22 @@ const Modal = ({
           })
         );
       } else {
-        let newCertificate;
+        let newCertificate = {};
         for (const prop in form) {
           if (prop == tags) {
             newCertificate[prop] = tags;
           }
           newCertificate[prop] = form[prop];
         }
-        updateData({
-          certificate: newCertificate,
-          setErrorHook: setErrorHook,
-          jwt: jwt,
-          addMode: addMode,
-        });
+        dispatch(
+          updateData({
+            certificate: newCertificate,
+            setErrorHook: setErrorHook,
+            jwt: jwt,
+            addMode: addMode,
+          })
+        );
       }
-
       dispatch(close());
       setForm({});
       setTags([]);
