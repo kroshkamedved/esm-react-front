@@ -16,6 +16,7 @@ import TableHeader from "../TableHeader";
 import CertificatesTableBody from "../TableBody";
 import Modal from "../Modal";
 import { edit, add, view, close } from "../redux/modalSlice";
+import { updateData } from "../redux/updateSlice";
 
 const Certificates = () => {
   const [error, setError] = useState(null);
@@ -39,9 +40,15 @@ const Certificates = () => {
 
   //button handling
   const handleDelete = (id) => {
-    const updatedArray = [...dbData];
-    updatedArray.splice(id, 1);
-    setDbData(updatedArray);
+    dispatch(
+      updateData({
+        deleteMod: true,
+        deleteItemId: dbData[id].id,
+        setErrorHook: setError,
+        jwt: jwt,
+      })
+    );
+    handleRefresh();
   };
 
   const handleView = (id) => {

@@ -2,24 +2,54 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { hostName } from "../../config";
 
 import { useSelector } from "react-redux";
+import { json } from "react-router-dom";
 
 export const updateData = createAsyncThunk(
   "update data through async thunk",
-  async ({ certificate, setErrorHook, jwt, addMode }) => {
+  async ({
+    certificate,
+    setErrorHook,
+    jwt,
+    addMode,
+    deleteMod,
+    deleteItemId,
+  }) => {
     try {
-      let response = await fetch(`${hostName}/certificates`, {
-        method: addMode ? "post" : "put",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + jwt,
-        },
-        body: JSON.stringify(certificate),
-      });
-      if (response.ok) {
-        return;
+      if (deleteMod) {
+        let response = await fetch(`${hostName}/certificates/${deleteItemId}`, {
+          method: "delete",
+          headers: {
+            Authorization: "Bearer " + jwt,
+          },
+        });
+        if (response.ok) {
+          return;
+        } else {
+          if (response.status === 0 || response.status >= 400) {
+            const error = await response.json();
+            if (error.errorMessage == "Data integrity violation") {
+              setErrorHook(
+                error.errorMessage +
+                  ": Deletion of certificates associated with existing orders is prohibited"
+              );
+            }
+          }
+        }
+      } else {
+        let response = await fetch(`${hostName}/certificates`, {
+          method: addMode ? "post" : "put",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + jwt,
+          },
+          body: JSON.stringify(certificate),
+        });
+        if (response.ok) {
+          return;
+        }
       }
     } catch {
-      setErrorHook("Error during certificate update");
+      setErrorHook("Error during certificate delete/update");
     }
   }
 );
