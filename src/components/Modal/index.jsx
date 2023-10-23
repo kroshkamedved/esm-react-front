@@ -58,6 +58,18 @@ const Modal = ({
         if (field != "tags") {
           newErrors[field] = "Field shoud not be empty!";
         }
+      } else if (
+        (field == "name" && form[field].length < 6) ||
+        form[field].length > 30
+      ) {
+        newErrors[field] =
+          "Title field must not be less than 6 and greater than 30 characters";
+      } else if (
+        (field == "description" && form[field].length < 12) ||
+        form[field].length > 1000
+      ) {
+        newErrors[field] =
+          "Description field must not be less than 12 and greater than 1000 characters";
       }
     }
 
@@ -255,29 +267,6 @@ const Modal = ({
               )}
               sx={{ width: "500px" }}
             />
-            {/* <Form.Control
-              placeholder="new tag name..."
-              aria-label="Search"
-              aria-describedby="basic-addon2"
-              value={
-                editMode
-                  ? newTagName
-                  : addMode
-                  ? newTagName
-                  : dbData[currentIndex].tags.map((tag) => tag.name).join("; ")
-              }
-              onChange={(e) => {
-                setNewTagName(e.target.value);
-              }}
-            /> */}
-            {/* <Button
-              variant="outline-secondary"
-              id="button-addon2"
-              disabled={viewMode ? true : false}
-              onClick={() => {}}
-            >
-              &nbsp;&nbsp;&nbsp;&nbsp;Add&nbsp;&nbsp;&nbsp;&nbsp;
-            </Button> */}
           </div>
         )}
         {viewMode && (

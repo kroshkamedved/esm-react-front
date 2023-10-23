@@ -21,8 +21,12 @@ const Certificates = () => {
   const [error, setError] = useState(null);
   const { jwt } = useSelector((state) => state.auth);
   const [dbData, setDbData] = useState(null);
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(
+    JSON.parse(localStorage.getItem("pageSize"))
+  );
+  const [currentPage, setCurrentPage] = useState(
+    JSON.parse(localStorage.getItem("currentPage"))
+  );
   const [page, setPage] = useState({});
   const [sortField, setSortField] = useState("created");
   const [ascOrder, setAscOrder] = useState(true);
@@ -66,6 +70,7 @@ const Certificates = () => {
     loadTags();
     fullfillInitialValues(id);
     dispatch(edit(id));
+    handleRefresh();
   };
 
   function fullfillInitialValues(id) {
@@ -101,6 +106,7 @@ const Certificates = () => {
   }, [error]);
 
   const handlePageSelect = (page) => {
+    setCurrentPage(page);
     dispatch(
       getData({
         jwt,
@@ -112,6 +118,7 @@ const Certificates = () => {
       if (data.payload) {
         setDbData(data.payload._embedded.certificateModelList);
         setPage(data.payload.page);
+        localStorage.setItem("currentPage", data.payload.page.number);
       }
     });
   };
@@ -162,7 +169,6 @@ const Certificates = () => {
       console.log(data);
       if (data.payload) {
         const sortedArray = data.payload._embedded.certificateModelList;
-        //setDbData(data.payload._embedded.certificateModelList);
         sortData(sortField, sortedArray);
         setPage(data.payload.page);
       }
@@ -228,6 +234,9 @@ const Certificates = () => {
                 <PageSizeDropdown
                   pageSize={pageSize}
                   onChangePageSize={(selectedValue) => {
+                    setCurrentPage(0);
+                    localStorage.setItem("currentPage", 0);
+                    localStorage.setItem("pageSize", selectedValue);
                     setPageSize(selectedValue);
                   }}
                 />
